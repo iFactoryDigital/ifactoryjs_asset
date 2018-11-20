@@ -152,7 +152,7 @@ class Image extends File {
     const thumbs = this.get('thumbs') || {};
 
     // Loop for transport
-    for (const thumb of thumbs) {
+    for (const thumb of Object.values(thumbs)) {
       // Await remove
       await this.eden.register('asset.transport').remove(this, `${thumb.name || thumb.label}.${thumb.ext}`);
     }
@@ -182,7 +182,7 @@ class Image extends File {
     sanitised.thumbs = this.get('thumbs') || {};
 
     // Get url for thumbs
-    for (const thumb of sanitised.thumbs) {
+    for (const thumb of Object.values(sanitised.thumbs)) {
       // Set thumb url
       thumb.url = await this.eden.register('asset.transport').url(this, (thumb.name || thumb.label));
     }
