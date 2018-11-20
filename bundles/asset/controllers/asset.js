@@ -7,15 +7,6 @@ const Controller = require('controller');
  */
 class AssetController extends Controller {
 
-  /**
-   * Construct Home Controller class
-   */
-  constructor () {
-    // Run super
-    super();
-
-  }
-
 }
 
 /**
@@ -23,4 +14,4 @@ class AssetController extends Controller {
  *
  * @type {AssetController}
  */
-exports = module.exports = AssetController;
+module.exports = AssetController;

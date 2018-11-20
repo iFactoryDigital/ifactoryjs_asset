@@ -8,15 +8,6 @@ const Base = require('base');
  * Create Local Transport class
  */
 class LocalTransport extends Base {
-
-  /**
-   * Construct Local Transport class
-   */
-  constructor () {
-    // Run super
-    super();
-  }
-
   /**
    * Gets Asset url
    *
@@ -25,9 +16,9 @@ class LocalTransport extends Base {
    *
    * @return {*}
    */
-  url (asset, label) {
+  url(asset, label) {
     // Return url
-    return '/public/media/' + asset.get('path') + '/' + (label ? label + '.' + asset.get('thumbs.' + label + '.ext') : 'full.' + asset.get('ext'));
+    return `/public/media/${asset.get('path')}/${label ? `${label}.${asset.get(`thumbs.${label}.ext`)}` : `full.${asset.get('ext')}`}`;
   }
 
   /**
@@ -39,7 +30,7 @@ class LocalTransport extends Base {
    *
    * @async
    */
-  async push (asset, tmp, label) {
+  async push(asset, tmp, label) {
     // Set transport
     asset.set('transport', 'local');
 
@@ -47,16 +38,16 @@ class LocalTransport extends Base {
     let date = asset.get('created_at') || new Date();
 
     // Augment date
-    date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+    date = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
     // Set path
-    asset.set('path', date + '/' + asset.get('hash'));
+    asset.set('path', `${date}/${asset.get('hash')}`);
 
     // Ensure sync
-    await fs.ensureDir(global.appRoot + '/www/public/media/' + asset.get('path'));
+    await fs.ensureDir(`${global.appRoot}/www/public/media/${asset.get('path')}`);
 
     // Pushes asset
-    await fs.copy(tmp, global.appRoot + '/www/public/media/' + asset.get('path') + '/' + (label ? label + '.' + asset.get('thumbs.' + label + '.ext') : 'full.' + asset.get('ext')));
+    await fs.copy(tmp, `${global.appRoot}/www/public/media/${asset.get('path')}/${label ? `${label}.${asset.get(`thumbs.${label}.ext`)}` : `full.${asset.get('ext')}`}`);
   }
 
   /**
@@ -68,12 +59,12 @@ class LocalTransport extends Base {
    *
    * @async
    */
-  async pull (asset, tmp, label) {
+  async pull(asset, tmp, label) {
     // Set transport
     asset.set('transport', 'local');
 
     // Pushes asset
-    await fs.copy(global.appRoot + '/www/public/media/' + asset.get('path') + '/' + (label ? label + '.' + asset.get('thumbs.' + label + '.ext') : 'full.' + asset.get('ext')), tmp);
+    await fs.copy(`${global.appRoot}/www/public/media/${asset.get('path')}/${label ? `${label}.${asset.get(`thumbs.${label}.ext`)}` : `full.${asset.get('ext')}`}`, tmp);
   }
 
   /**
@@ -84,17 +75,16 @@ class LocalTransport extends Base {
    *
    * @async
    */
-  async remove (asset, label) {
+  async remove(asset, label) {
     // Pushes asset
-    await fs.unlink(global.appRoot + '/www/public/media/' + asset.get('path') + '/' + (label ? label + '.' + asset.get('thumbs.' + label + '.ext') : 'full.' + asset.get('ext')));
+    await fs.unlink(`${global.appRoot}/www/public/media/${asset.get('path')}/${label ? `${label}.${asset.get(`thumbs.${label}.ext`)}` : `full.${asset.get('ext')}`}`);
 
     // Count files in directory
-    if (!(await fs.readdir(global.appRoot + '/www/public/media/' + asset.get('path'))).files.length) {
+    if (!(await fs.readdir(`${global.appRoot}/www/public/media/${asset.get('path')}`)).files.length) {
       // Remove directory
-      await fs.unlink(global.appRoot + '/www/public/media/' + asset.get('path'));
+      await fs.unlink(`${global.appRoot}/www/public/media/${asset.get('path')}`);
     }
   }
-
 }
 
 /**
@@ -102,4 +92,4 @@ class LocalTransport extends Base {
  *
  * @type {LocalTransport}
  */
-exports = module.exports = LocalTransport;
+module.exports = LocalTransport;

@@ -1,6 +1,5 @@
 // Require dependencies
 const gulp   = require('gulp');
-const path   = require('path');
 const rename = require('gulp-rename');
 
 /**
@@ -9,18 +8,17 @@ const rename = require('gulp-rename');
  * @task assets
  */
 class AssetsTask {
-
   /**
    * Construct Assets Task class
    *
    * @param {Loader} runner
    */
-  constructor (runner) {
+  constructor(runner) {
     // Set private variables
     this._runner = runner;
 
     // Bind public methods
-    this.run   = this.run.bind(this);
+    this.run = this.run.bind(this);
     this.watch = this.watch.bind(this);
   }
 
@@ -31,7 +29,7 @@ class AssetsTask {
    *
    * @return {Promise}
    */
-  run (files) {
+  run(files) {
     // Move images into single folder
     return gulp.src(files)
       .pipe(rename((filePath) => {
@@ -45,9 +43,9 @@ class AssetsTask {
         amended = amended.join('assets');
 
         // Alter amended
-        filePath.dirname = amended;
+        filePath.dirname = amended; // eslint-disable-line no-param-reassign
       }))
-      .pipe(gulp.dest(global.appRoot + '/www/public/assets'));
+      .pipe(gulp.dest(`${global.appRoot}/data/www/public/assets`));
   }
 
   /**
@@ -55,13 +53,12 @@ class AssetsTask {
    *
    * @return {string[]}
    */
-  watch () {
+  watch() {
     // Return files
     return [
-      'public/assets/**/*'
+      'public/assets/**/*',
     ];
   }
-
 }
 
 /**
@@ -69,4 +66,4 @@ class AssetsTask {
  *
  * @type {AssetsTask}
  */
-exports = module.exports = AssetsTask;
+module.exports = AssetsTask;

@@ -12,27 +12,26 @@ const Model = require('model');
  * Create File Model Class
  */
 class File extends Model {
-
   /**
    * Construct File Model class
    */
-  constructor () {
+  constructor(...args) {
     // Run super
-    super(...arguments);
+    super(...args);
 
     // Bind public methods
-    this.url      = this.url.bind(this);
-    this.remove   = this.remove.bind(this);
+    this.url = this.url.bind(this);
+    this.remove = this.remove.bind(this);
     this.sanitise = this.sanitise.bind(this);
 
     // Bind create methods
-    this.fromURL    = this.fromURL.bind(this);
-    this.fromFile   = this.fromFile.bind(this);
+    this.fromURL = this.fromURL.bind(this);
+    this.fromFile = this.fromFile.bind(this);
     this.fromBuffer = this.fromBuffer.bind(this);
 
     // Bind alias methods
-    this.file     = this.fromFile;
-    this.buffer   = this.fromBuffer;
+    this.file = this.fromFile;
+    this.buffer = this.fromBuffer;
     this.download = this.fromURL;
   }
 
@@ -46,22 +45,22 @@ class File extends Model {
    *
    * @async
    */
-  async fromBuffer (buffer, name) {
+  async fromBuffer(buffer, name) {
     // Set extension and hash
-    this.set('ext',  this.get('ext')  || path.extname(name).replace('.', ''));
+    this.set('ext', this.get('ext') || path.extname(name).replace('.', ''));
     this.set('hash', this.get('hash') || uuid());
 
     // Ensure tmp dir
-    fs.ensureDirSync(global.appRoot + '/cache/tmp');
+    fs.ensureDirSync(`${global.appRoot}/cache/tmp`);
 
     // Move File temporarily
-    fs.writeFileSync(global.appRoot + '/cache/tmp/' + this.get('hash'), buffer);
+    fs.writeFileSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`, buffer);
 
     // Return this for chainable
-    await this.fromFile(global.appRoot + '/cache/tmp/' + this.get('hash'), name);
+    await this.fromFile(`${global.appRoot}/cache/tmp/${this.get('hash')}`, name);
 
     // Remove File
-    fs.unlinkSync(global.appRoot + '/cache/tmp/' + this.get('hash'));
+    fs.unlinkSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
 
     // Return this
     return this;
@@ -76,20 +75,20 @@ class File extends Model {
    *
    * @async
    */
-  async fromURL (link) {
+  async fromURL(link) {
     // Get name
     const name = path.basename(url.parse(link).pathname);
 
     // Set extension and hash
-    this.set('ext',  this.get('ext')  || path.extname(name).replace('.', ''));
+    this.set('ext', this.get('ext') || path.extname(name).replace('.', ''));
     this.set('hash', this.get('hash') || uuid());
 
     // Ensure tmp dir
-    fs.ensureDirSync(global.appRoot + '/cache/tmp');
+    fs.ensureDirSync(`${global.appRoot}/cache/tmp`);
 
     // Create request
     const res  = request.get(link);
-    const dest = fs.createWriteStream(global.appRoot + '/cache/tmp/' + this.get('hash'));
+    const dest = fs.createWriteStream(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
 
     // Res pipe dest
     res.pipe(dest);
@@ -101,10 +100,10 @@ class File extends Model {
     });
 
     // Do File
-    await this.fromFile(global.appRoot + '/cache/tmp/' + this.get('hash'), name);
+    await this.fromFile(`${global.appRoot}/cache/tmp/${this.get('hash')}`, name);
 
     // Remove File
-    fs.unlinkSync(global.appRoot + '/cache/tmp/' + this.get('hash'));
+    fs.unlinkSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
 
     // Return this
     return this;
@@ -120,15 +119,15 @@ class File extends Model {
    *
    * @async
    */
-  async fromFile (location, name) {
+  async fromFile(location, name) {
     // Check if File exists
     if (!fs.existsSync(location)) {
       // Throw error
-      throw new Error('Image File does not exist in ' + location);
+      throw new Error(`Image File does not exist in ${location}`);
     }
 
     // Set file info
-    this.set('ext',  this.get('ext')  || path.extname(name).replace('.', ''));
+    this.set('ext', this.get('ext') || path.extname(name).replace('.', ''));
     this.set('hash', this.get('hash') || uuid());
     this.set('name', name || (this.get('hash')) + this.get('ext'));
     this.set('size', fs.statSync(location).size);
@@ -151,14 +150,14 @@ class File extends Model {
    *
    * @returns {Model}
    */
-  remove () {
+  remove(...args) {
     // Run file remove hook
     return this.eden.hook('file.remove', this, async () => {
       // Remove asset transport
       await this.eden.register('asset.transport').remove(this);
 
       // Remove this
-      return super.remove(...arguments);
+      return super.remove(...args);
     });
   }
 
@@ -167,7 +166,7 @@ class File extends Model {
    *
    * @return {string}
    */
-  url () {
+  url() {
     // Return asset transport url
     return this.eden.register('asset.transport').url(this);
   }
@@ -179,27 +178,26 @@ class File extends Model {
    *
    * @async
    */
-  async sanitise () {
+  async sanitise(...args) {
     // Check arguments
-    if (arguments && arguments.length) {
-      // Return sanitised with arguments
-      return await super.__sanitiseModel(...arguments);
+    if (args && args.length) {
+      // Return sanitised with args
+      return await super.__sanitiseModel(...args);
     }
 
     // Return sanitised with default
     return await super.__sanitiseModel('name', 'hash', 'created_at', {
-      'field'          : '_id',
-      'sanitisedField' : 'id',
-      'default'        : null
+      field          : '_id',
+      sanitisedField : 'id',
+      default        : null,
     }, {
-      'field'  : 'url',
-      'custom' : async () => {
+      field  : 'url',
+      custom : async () => {
         // Return url
         return await this.url();
-      }
+      },
     });
   }
-
 }
 
 /**
@@ -207,4 +205,4 @@ class File extends Model {
  *
  * @type {File}
  */
-exports = module.exports = File;
+module.exports = File;

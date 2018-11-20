@@ -2,11 +2,10 @@
  * Create Media class
  */
 class Media {
-
   /**
    * Construct Media class
    */
-  constructor () {
+  constructor() {
     // Bind public methods
     this.url = this.url.bind(this);
   }
@@ -19,14 +18,13 @@ class Media {
    *
    * @returns {string}
    */
-  url (image, label) {
+  url(image, label) {
     // Check image
-    if (!image) return;
+    if (!image) return null;
 
     // Build url
     return label && image.thumbs[label] ? image.thumbs[label].url : image.url;
   }
-
 }
 
 /**
@@ -34,4 +32,4 @@ class Media {
  *
  * @return {Media}
  */
-exports = module.exports = new Media();
+module.exports = new Media();

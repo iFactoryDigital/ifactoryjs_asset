@@ -22,11 +22,10 @@ const Image = model('image');
  * @express
  */
 class AssetDaemon extends Daemon {
-
   /**
    * Construct Asset Daemon class
    */
-  constructor () {
+  constructor() {
     // Run super
     super();
 
@@ -45,7 +44,7 @@ class AssetDaemon extends Daemon {
    *
    * @async
    */
-  async build () {
+  async build() {
     // Check migration
     if (config.get('asset.migrate')) {
       // Load all file assets
@@ -69,11 +68,11 @@ class AssetDaemon extends Daemon {
    *
    * @async
    */
-  async _migrate (asset) {
+  async _migrate(asset) {
     // Check file exists
-    if (fs.existsSync(global.appRoot + '/www/public/' + asset.get('path') + '/' + asset.get('hash') + asset.get('ext'))) {
+    if (fs.existsSync(`${global.appRoot}/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`)) {
       // Create asset from file
-      await asset.fromFile(global.appRoot + '/www/public/' + asset.get('path') + '/' + asset.get('hash') + asset.get('ext'), asset.get('name'));
+      await asset.fromFile(`${global.appRoot}/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`, asset.get('name'));
     }
 
     // Set ext
@@ -86,7 +85,6 @@ class AssetDaemon extends Daemon {
     // Save asset
     await asset.save();
   }
-
 }
 
 /**
@@ -94,4 +92,4 @@ class AssetDaemon extends Daemon {
  *
  * @type {AssetDaemon}
  */
-exports = module.exports = AssetDaemon;
+module.exports = AssetDaemon;

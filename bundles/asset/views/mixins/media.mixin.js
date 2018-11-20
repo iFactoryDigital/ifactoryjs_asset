@@ -3,8 +3,8 @@ riot.mixin('media', {
   /**
    * On init function
    */
-  'init' : function () {
+  init() {
     // Set media
-    this.media = require('asset/public/js/media');
-  }
+    this.media = require('asset/public/js/media'); // eslint-disable-line global-require
+  },
 });

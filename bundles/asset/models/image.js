@@ -9,13 +9,12 @@ const File = model('file');
  * Create Image Model class
  */
 class Image extends File {
-
   /**
    * Construct Image Model class
    */
-  constructor () {
+  constructor(...args) {
     // Run super
-    super(...arguments);
+    super(...args);
 
     // Bind public methods
     this.thumb = this.thumb.bind(this);
@@ -30,17 +29,19 @@ class Image extends File {
    *
    * @async
    */
-  async fromBuffer (buffer) {
+  async fromBuffer(...args) {
+    const [buffer] = args;
+
     // Load Image
     const img  = sharp(buffer);
     const meta = await img.metadata();
 
     // Set extension and hash
-    this.set('ext',  meta.format);
+    this.set('ext', meta.format);
     this.set('meta', meta);
 
     // Run super
-    return await super.fromBuffer(...arguments);
+    return await super.fromBuffer(...args);
   }
 
   /**
@@ -52,17 +53,19 @@ class Image extends File {
    *
    * @async
    */
-  async fromFile (location) {
+  async fromFile(...args) {
+    const [location] = args;
+
     // Load Image
     const img  = sharp(await fs.readFile(location));
     const meta = await img.metadata();
 
     // Set extension and hash
-    this.set('ext',  meta.format);
+    this.set('ext', meta.format);
     this.set('meta', meta);
 
     // Run super
-    return await super.fromFile(...arguments);
+    return await super.fromFile(...args);
   }
 
   /**
@@ -74,18 +77,18 @@ class Image extends File {
    *
    * @async
    */
-  async thumb (name) {
+  async thumb(name) {
     // Set local cache
-    const local = global.appRoot + '/cache/tmp';
+    const local = `${global.appRoot}/cache/tmp`;
 
     // Ensure sync
     await fs.ensureDir(local);
 
     // Pull to dir
-    await this.eden.register('asset.transport').pull(this, local + '/' + this.get('hash'));
+    await this.eden.register('asset.transport').pull(this, `${local}/${this.get('hash')}`);
 
     // Load Image
-    const load = sharp(await fs.readFile(local + '/' + this.get('hash')));
+    const load = sharp(await fs.readFile(`${local}/${this.get('hash')}`));
 
     /**
      * Set save function
@@ -98,19 +101,19 @@ class Image extends File {
       let thumb  = thumbs && thumbs[name] ? thumbs[name] : false;
 
       // Save thumb
-      await load.toFile(local + '/' + this.get('hash') + '-' + name);
+      await load.toFile(`${local}/${this.get('hash')}-${name}`);
 
       // Load meta
-      let meta = sharp(await fs.readFile(local + '/' + this.get('hash') + '-' + name));
+      let meta = sharp(await fs.readFile(`${local}/${this.get('hash')}-${name}`));
 
       // Set meta
       meta = await meta.metadata();
 
       // Set info
       thumb = {
-        'ext'  : meta.format,
-        'meta' : meta,
-        'name' : name
+        ext  : meta.format,
+        meta,
+        name,
       };
 
       // Add to thumbs
@@ -120,11 +123,11 @@ class Image extends File {
       this.set('thumbs', thumbs);
 
       // Push to away
-      await this.eden.register('asset.transport').push(this, local + '/' + this.get('hash') + '-' + name, name);
+      await this.eden.register('asset.transport').push(this, `${local}/${this.get('hash')}-${name}`, name);
 
       // Unlink
-      await fs.unlink(local + '/' + this.get('hash'));
-      await fs.unlink(local + '/' + this.get('hash') + '-' + name);
+      await fs.unlink(`${local}/${this.get('hash')}`);
+      await fs.unlink(`${local}/${this.get('hash')}-${name}`);
 
       // Save this
       await this.save();
@@ -141,7 +144,7 @@ class Image extends File {
    *
    * @async
    */
-  async remove () {
+  async remove(...args) {
     // Await remove Image
     await this.eden.hook('remove.Image', this);
 
@@ -149,19 +152,13 @@ class Image extends File {
     const thumbs = this.get('thumbs') || {};
 
     // Loop for transport
-    for (let thumb in thumbs) {
-      // Check thumbs has thumb
-      if (thumbs.hasOwnProperty(thumb)) {
-        // Set thumb
-        thumb = thumbs[thumb];
-
-        // Await remove
-        await this.eden.register('asset.transport').remove(this, (thumb.name || thumb.label) + '.' + thumb.ext);
-      }
+    for (const thumb of thumbs) {
+      // Await remove
+      await this.eden.register('asset.transport').remove(this, `${thumb.name || thumb.label}.${thumb.ext}`);
     }
 
     // Run super
-    return super.remove(...arguments);
+    return super.remove(...args);
   }
 
   /**
@@ -171,35 +168,28 @@ class Image extends File {
    *
    * @async
    */
-  async sanitise () {
+  async sanitise(...args) {
     // Check arguments
-    if (arguments && arguments.length) {
-      // Return sanitised with arguments
-      return await super.__sanitiseModel(...arguments);
+    if (args && args.length) {
+      // Return sanitised with args
+      return await super.__sanitiseModel(...args);
     }
 
     // Get initial sanitised
-    const sanitised = await super.sanitise(...arguments);
+    const sanitised = await super.sanitise(...args);
 
     // Set thumbs
     sanitised.thumbs = this.get('thumbs') || {};
 
     // Get url for thumbs
-    for (let thumb in sanitised.thumbs) {
-      // Check thumbs has thumb
-      if (sanitised.thumbs.hasOwnProperty(thumb)) {
-        // Set thumb
-        thumb = sanitised.thumbs[thumb];
-
-        // Set thumb url
-        thumb.url = await this.eden.register('asset.transport').url(this, (thumb.name || thumb.label));
-      }
+    for (const thumb of sanitised.thumbs) {
+      // Set thumb url
+      thumb.url = await this.eden.register('asset.transport').url(this, (thumb.name || thumb.label));
     }
 
     // Return sanitised
     return sanitised;
   }
-
 }
 
 /**
@@ -207,4 +197,4 @@ class Image extends File {
  *
  * @type {Image}
  */
-exports = module.exports = Image;
+module.exports = Image;
