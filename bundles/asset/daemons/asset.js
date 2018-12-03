@@ -70,9 +70,9 @@ class AssetDaemon extends Daemon {
    */
   async _migrate(asset) {
     // Check file exists
-    if (fs.existsSync(`${global.appRoot}/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`)) {
+    if (fs.existsSync(`${global.appRoot}/data/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`)) {
       // Create asset from file
-      await asset.fromFile(`${global.appRoot}/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`, asset.get('name'));
+      await asset.fromFile(`${global.appRoot}/data/www/public/${asset.get('path')}/${asset.get('hash')}${asset.get('ext')}`, asset.get('name'));
     }
 
     // Set ext

@@ -51,16 +51,16 @@ class File extends Model {
     this.set('hash', this.get('hash') || uuid());
 
     // Ensure tmp dir
-    fs.ensureDirSync(`${global.appRoot}/cache/tmp`);
+    fs.ensureDirSync(`${global.appRoot}/data/cache/tmp`);
 
     // Move File temporarily
-    fs.writeFileSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`, buffer);
+    fs.writeFileSync(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`, buffer);
 
     // Return this for chainable
-    await this.fromFile(`${global.appRoot}/cache/tmp/${this.get('hash')}`, name);
+    await this.fromFile(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`, name);
 
     // Remove File
-    fs.unlinkSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
+    fs.unlinkSync(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`);
 
     // Return this
     return this;
@@ -84,11 +84,11 @@ class File extends Model {
     this.set('hash', this.get('hash') || uuid());
 
     // Ensure tmp dir
-    fs.ensureDirSync(`${global.appRoot}/cache/tmp`);
+    fs.ensureDirSync(`${global.appRoot}/data/cache/tmp`);
 
     // Create request
     const res  = request.get(link);
-    const dest = fs.createWriteStream(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
+    const dest = fs.createWriteStream(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`);
 
     // Res pipe dest
     res.pipe(dest);
@@ -100,10 +100,10 @@ class File extends Model {
     });
 
     // Do File
-    await this.fromFile(`${global.appRoot}/cache/tmp/${this.get('hash')}`, name);
+    await this.fromFile(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`, name);
 
     // Remove File
-    fs.unlinkSync(`${global.appRoot}/cache/tmp/${this.get('hash')}`);
+    fs.unlinkSync(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`);
 
     // Return this
     return this;

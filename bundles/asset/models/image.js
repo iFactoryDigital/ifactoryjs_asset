@@ -79,7 +79,7 @@ class Image extends File {
    */
   async thumb(name) {
     // Set local cache
-    const local = `${global.appRoot}/cache/tmp`;
+    const local = `${global.appRoot}/data/cache/tmp`;
 
     // Ensure sync
     await fs.ensureDir(local);
