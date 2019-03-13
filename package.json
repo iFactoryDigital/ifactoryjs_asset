@@ -1,7 +1,7 @@
 {
   "name": "@edenjs/asset",
   "description": "",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "dependencies": {
     "fs-extra": "^7.0.0",
     "gulp": "^4.0.0",
