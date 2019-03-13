@@ -153,8 +153,11 @@ class Image extends File {
 
     // Loop for transport
     for (const thumb of Object.values(thumbs)) {
-      // Await remove
-      await this.eden.register('asset.transport').remove(this, `${thumb.name || thumb.label}.${thumb.ext}`);
+      // try/catch
+      try {
+        // Await remove
+        await this.eden.register('asset.transport').remove(this, `${thumb.name || thumb.label}.${thumb.ext}`);
+      } catch (e) { console.log(e) }
     }
 
     // Run super

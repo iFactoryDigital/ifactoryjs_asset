@@ -153,8 +153,11 @@ class File extends Model {
   remove(...args) {
     // Run file remove hook
     return this.eden.hook('file.remove', this, async () => {
-      // Remove asset transport
-      await this.eden.register('asset.transport').remove(this);
+      // try/catch
+      try {
+        // Remove asset transport
+        await this.eden.register('asset.transport').remove(this);
+      } catch (e) { console.log(e) }
 
       // Remove this
       return super.remove(...args);
