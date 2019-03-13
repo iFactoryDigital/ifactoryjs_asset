@@ -156,7 +156,7 @@ class Image extends File {
       // try/catch
       try {
         // Await remove
-        await this.eden.register('asset.transport').remove(this, `${thumb.name || thumb.label}.${thumb.ext}`);
+        await this.eden.register('asset.transport').remove(this, (thumb.name || thumb.label));
       } catch (e) { console.log(e) }
     }
 
