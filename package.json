@@ -4,11 +4,11 @@
   "version": "2.0.5",
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "gulp": "^4.0.0",
+    "gulp": "^4.0.2",
     "gulp-rename": "^1.4.0",
     "path": "^0.12.7",
     "request": "^2.88.0",
-    "sharp": "^0.22.0",
+    "sharp": "^0.22.1",
     "url": "^0.11.0",
     "uuid": "^3.3.2"
   },
@@ -31,10 +31,10 @@
   "homepage": "https://github.com/eden-js/asset#readme",
   "devDependencies": {
     "@edenjs/eslint-config-eden": "^2.0.14",
-    "eslint": "^5.13.0",
+    "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-jsx-a11y": "^6.2.0",
-    "eslint-plugin-react": "^7.12.4"
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.13.0"
   }
 }
