@@ -1,5 +1,6 @@
 // Require dependencies
 const fs    = require('fs-extra');
+const uuid  = require('uuid');
 const sharp = require('sharp');
 
 // Require local class dependencies
@@ -18,6 +19,9 @@ class Image extends File {
 
     // Bind public methods
     this.thumb = this.thumb.bind(this);
+
+    // add debounced puller
+    this.debounce = {};
   }
 
   /**
@@ -79,62 +83,112 @@ class Image extends File {
    */
   async thumb(name) {
     // Set local cache
+    const thId = uuid();
     const local = `${global.appRoot}/data/cache/tmp`;
 
     // Ensure sync
     await fs.ensureDir(local);
 
-    // Pull to dir
-    await this.eden.register('asset.transport').pull(this, `${local}/${this.get('hash')}`);
+    // setup bounced out promise
+    let reject = null;
+    let resolve = null;
+    const promise = new Promise((res, rej) => {
+      reject = rej;
+      resolve = res;
+    });
 
-    // Load Image
-    const load = sharp(await fs.readFile(`${local}/${this.get('hash')}`));
+    // big try/catch
+    try {
+      // do lock
+      const lock = await this.eden.lock(`${this.get('_id')}:downloading`);
 
-    /**
-     * Set save function
-     */
-    load.save = async () => {
-      // Set thumbs
-      const thumbs = this.get('thumbs') || {};
+      // try/catch
+      try {
+        // pull to dir
+        if (!Object.keys(this.debounce).length) {
+          // Pull to dir
+          await this.eden.register('asset.transport').pull(this, `${local}/${this.get('hash')}`);
+        }
 
-      // Set thumb
-      let thumb  = thumbs && thumbs[name] ? thumbs[name] : false;
+        // push debounced promise
+        this.debounce[thId] = promise;
+      } catch (e) {}
 
-      // Save thumb
-      await load.toFile(`${local}/${this.get('hash')}-${name}`);
+      // unlock
+      lock();
 
-      // Load meta
-      let meta = sharp(await fs.readFile(`${local}/${this.get('hash')}-${name}`));
+      // Load Image
+      const load = sharp(await fs.readFile(`${local}/${this.get('hash')}`));
 
-      // Set meta
-      meta = await meta.metadata();
+      /**
+       * Set save function
+       */
+      load.save = async () => {
+        // Set thumbs
+        const thumbs = this.get('thumbs') || {};
 
-      // Set info
-      thumb = {
-        ext  : meta.format,
-        meta,
-        name,
+        // Set thumb
+        let thumb  = thumbs && thumbs[name] ? thumbs[name] : false;
+
+        // Save thumb
+        await load.toFile(`${local}/${this.get('hash')}-${name}`);
+
+        // Load meta
+        let meta = sharp(await fs.readFile(`${local}/${this.get('hash')}-${name}`));
+
+        // Set meta
+        meta = await meta.metadata();
+
+        // Set info
+        thumb = {
+          ext  : meta.format,
+          meta,
+          name,
+        };
+
+        // Add to thumbs
+        thumbs[name] = thumb;
+
+        // Set thumbs
+        this.set('thumbs', thumbs);
+
+        // Push to away
+        await this.eden.register('asset.transport').push(this, `${local}/${this.get('hash')}-${name}`, name);
+
+        // Unlink
+        await fs.unlink(`${local}/${this.get('hash')}-${name}`);
+
+        // Save this
+        await this.save();
+
+        // do lock
+        const lock2 = await this.eden.lock(`${this.get('_id')}:downloading`);
+
+        // try/catch
+        try {
+          // debounce
+          delete this.debounce[thId];
+
+          // check keys
+          if (!Object.keys(this.debounce).length) {
+            // unlink
+            await fs.unlink(`${local}/${this.get('hash')}`);
+          }
+        } catch (e) {}
+
+        // unlock
+        lock2();
       };
 
-      // Add to thumbs
-      thumbs[name] = thumb;
+      // Return sharp with save handler
+      resolve(load);
+    } catch (e) {
+      // reject with error
+      reject(e);
+    }
 
-      // Set thumbs
-      this.set('thumbs', thumbs);
-
-      // Push to away
-      await this.eden.register('asset.transport').push(this, `${local}/${this.get('hash')}-${name}`, name);
-
-      // Unlink
-      await fs.unlink(`${local}/${this.get('hash')}`);
-      await fs.unlink(`${local}/${this.get('hash')}-${name}`);
-
-      // Save this
-      await this.save();
-    };
-
-    // Return sharp with save handler
-    return load;
+    // return await
+    return await promise;
   }
 
   /**
