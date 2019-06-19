@@ -124,12 +124,6 @@ class Image extends File {
        * Set save function
        */
       load.save = async () => {
-        // Set thumbs
-        const thumbs = this.get('thumbs') || {};
-
-        // Set thumb
-        let thumb  = thumbs && thumbs[name] ? thumbs[name] : false;
-
         // Save thumb
         await load.toFile(`${local}/${this.get('hash')}-${name}`);
 
@@ -139,18 +133,12 @@ class Image extends File {
         // Set meta
         meta = await meta.metadata();
 
-        // Set info
-        thumb = {
+        // Set thumbs
+        this.set(`thumbs.${name}`, {
           ext  : meta.format,
           meta,
           name,
-        };
-
-        // Add to thumbs
-        thumbs[name] = thumb;
-
-        // Set thumbs
-        this.set('thumbs', thumbs);
+        });
 
         // Push to away
         await this.eden.register('asset.transport').push(this, `${local}/${this.get('hash')}-${name}`, name);
