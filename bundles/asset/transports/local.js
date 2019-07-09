@@ -2,6 +2,7 @@
 const fs = require('fs-extra');
 
 // Require local class dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies
 const Base = require('base');
 
 /**

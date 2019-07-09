@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 // Require dependencies
 const fs    = require('fs-extra');
 const uuid  = require('uuid');
@@ -199,7 +200,7 @@ class Image extends File {
       try {
         // Await remove
         await this.eden.register('asset.transport').remove(this, (thumb.name || thumb.label));
-      } catch (e) { console.log(e) }
+      } catch (e) {}
     }
 
     // Run super

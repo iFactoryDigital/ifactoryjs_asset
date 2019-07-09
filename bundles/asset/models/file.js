@@ -157,7 +157,8 @@ class File extends Model {
       try {
         // Remove asset transport
         await this.eden.register('asset.transport').remove(this);
-      } catch (e) { console.log(e) }
+      // eslint-disable-next-line no-empty
+      } catch (e) { }
 
       // Remove this
       return super.remove(...args);
