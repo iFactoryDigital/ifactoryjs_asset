@@ -1,0 +1,16 @@
+<media-img>
+  <picture>
+    <source each={ (img, i) in opts.img } media="(max-width: { img.max })" srcset={ eden.get('media.url')(opts.image, img.label) } />
+    <img src={ eden.get('media.url')(opts.image, opts.label) || opts.fallback } class={ opts.class || opts.classes } />
+  </picture>
+
+  <script>
+    // import base
+    import Base from '../js/base';
+
+    // export
+    export default class MedaImg extends Base {
+
+    }
+  </script>
+</media-img>

@@ -5,6 +5,6 @@ riot.mixin('media', {
    */
   init() {
     // Set media
-    this.media = require('asset/public/js/media'); // eslint-disable-line global-require
+    this.media = require('asset/public/js/bootstrap'); // eslint-disable-line global-require
   },
 });
