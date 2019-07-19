@@ -33,7 +33,7 @@ class AssetDaemon extends Daemon {
     this.build = this.build.bind(this);
 
     // Register transport
-    this.eden.register('asset.transport', new LocalTransport());
+    this.eden.register('asset.transport.local', new LocalTransport());
 
     // Run build
     this.building = this.build();

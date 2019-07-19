@@ -59,6 +59,7 @@ class Image extends File {
    * @async
    */
   async fromFile(...args) {
+    // from file
     const [location] = args;
 
     // Load Image
@@ -107,8 +108,9 @@ class Image extends File {
       try {
         // pull to dir
         if (!Object.keys(this.debounce).length) {
+
           // Pull to dir
-          await this.eden.register('asset.transport').pull(this, `${local}/${this.get('hash')}`);
+          await this.transport().pull(this, `${local}/${this.get('hash')}`);
         }
 
         // push debounced promise
@@ -142,7 +144,7 @@ class Image extends File {
         });
 
         // Push to away
-        await this.eden.register('asset.transport').push(this, `${local}/${this.get('hash')}-${name}`, name);
+        await this.transport().push(this, `${local}/${this.get('hash')}-${name}`, name);
 
         // Unlink
         await fs.unlink(`${local}/${this.get('hash')}-${name}`);
@@ -199,7 +201,7 @@ class Image extends File {
       // try/catch
       try {
         // Await remove
-        await this.eden.register('asset.transport').remove(this, (thumb.name || thumb.label));
+        await this.transport().remove(this, (thumb.name || thumb.label));
       } catch (e) {}
     }
 
@@ -230,7 +232,7 @@ class Image extends File {
     // Get url for thumbs
     for (const thumb of Object.values(sanitised.thumbs)) {
       // Set thumb url
-      thumb.url = await this.eden.register('asset.transport').url(this, (thumb.name || thumb.label));
+      thumb.url = await this.transport().url(this, (thumb.name || thumb.label));
     }
 
     // Return sanitised

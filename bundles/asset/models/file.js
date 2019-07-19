@@ -1,9 +1,10 @@
 // Require dependencies
 const fs      = require('fs-extra');
-const path    = require('path');
-const request = require('request');
 const url     = require('url');
 const uuid    = require('uuid');
+const path    = require('path');
+const config  = require('config');
+const request = require('request');
 
 // Require local class dependencies
 const Model = require('model');
@@ -23,6 +24,7 @@ class File extends Model {
     this.url = this.url.bind(this);
     this.remove = this.remove.bind(this);
     this.sanitise = this.sanitise.bind(this);
+    this.transport = this.transport.bind(this);
 
     // Bind create methods
     this.fromURL = this.fromURL.bind(this);
@@ -131,11 +133,12 @@ class File extends Model {
     this.set('hash', this.get('hash') || uuid());
     this.set('name', name || (this.get('hash')) + this.get('ext'));
     this.set('size', fs.statSync(location).size);
+    this.set('transport', this.transport(true));
 
     // Run file create hook
     await this.eden.hook('file.create', this, async () => {
       // Register asset transport
-      await this.eden.register('asset.transport').push(this, location);
+      await this.transport().push(this, location);
 
       // Save this
       await this.save();
@@ -156,7 +159,7 @@ class File extends Model {
       // try/catch
       try {
         // Remove asset transport
-        await this.eden.register('asset.transport').remove(this);
+        await this.transport().remove(this);
       // eslint-disable-next-line no-empty
       } catch (e) { }
 
@@ -172,7 +175,28 @@ class File extends Model {
    */
   url() {
     // Return asset transport url
-    return this.eden.register('asset.transport').url(this);
+    return this.transport().url(this);
+  }
+
+  /**
+   * return transport class
+   *
+   * @param {Boolean} name
+   *
+   * @return {Transport}
+   */
+  transport(name) {
+    // get transport
+    const transport = this.get('transport') || config.get('asset.transport') || 'local';
+
+    // return transport
+    if (name) return transport;
+
+    // get transport
+    const transportClass = this.eden.register(`asset.transport.${transport}`);
+
+    // return transport class
+    return transportClass;
   }
 
   /**
@@ -192,8 +216,8 @@ class File extends Model {
     // Return sanitised with default
     return await super.__sanitiseModel('name', 'hash', 'created_at', {
       field          : '_id',
-      sanitisedField : 'id',
       default        : null,
+      sanitisedField : 'id',
     }, {
       field  : 'url',
       custom : async () => {
