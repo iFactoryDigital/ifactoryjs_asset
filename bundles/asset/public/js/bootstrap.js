@@ -1,5 +1,6 @@
-// require store
-const store = require('default/public/js/store');
+
+// let built
+let built = null;
 
 /**
  * Create Media class
@@ -35,11 +36,12 @@ class Media {
  *
  * @type {Alert}
  */
-window.eden.media = new Media();
+built = new Media();
 
 /**
  * Export Alert instance
  *
  * @type {Alert}
  */
-exports = module.exports = window.eden.media;
+window.eden.media = built;
+module.exports = built;

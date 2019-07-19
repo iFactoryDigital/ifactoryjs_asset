@@ -108,7 +108,6 @@ class Image extends File {
       try {
         // pull to dir
         if (!Object.keys(this.debounce).length) {
-
           // Pull to dir
           await this.transport().pull(this, `${local}/${this.get('hash')}`);
         }
