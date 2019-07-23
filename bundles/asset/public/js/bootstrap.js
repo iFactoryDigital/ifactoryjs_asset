@@ -43,5 +43,5 @@ built = new Media();
  *
  * @type {Alert}
  */
-window.eden.media = built;
+if (typeof window !== 'undefined') window.eden.media = built;
 module.exports = built;
