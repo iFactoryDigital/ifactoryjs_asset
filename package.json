@@ -1,5 +1,5 @@
 {
-  "name": "@edenjs/asset",
+  "name": "@ifactoryjs/asset",
   "description": "",
   "version": "2.0.14",
   "dependencies": {
@@ -21,14 +21,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eden-js/asset.git"
+    "url": "git+https://github.com/ifactorydigital/ifactoryjs_asset.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/eden-js/asset/issues"
+    "url": "https://github.com/ifactorydigital/ifactoryjs_asset/issues"
   },
-  "homepage": "https://github.com/eden-js/asset#readme",
+  "homepage": "https://github.com/ifactorydigital/ifactoryjs_asset#readme",
   "devDependencies": {
     "@edenjs/eslint-config-eden": "^2.0.14",
     "eslint": "^5.16.0",
