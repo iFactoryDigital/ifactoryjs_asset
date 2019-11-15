@@ -5,6 +5,7 @@ const uuid    = require('uuid');
 const path    = require('path');
 const config  = require('config');
 const request = require('request');
+var pdf       = require('html-pdf');
 
 // Require local class dependencies
 const Model = require('model');
@@ -30,6 +31,7 @@ class File extends Model {
     this.fromURL = this.fromURL.bind(this);
     this.fromFile = this.fromFile.bind(this);
     this.fromBuffer = this.fromBuffer.bind(this);
+    this.fromHtmlStringToPdf = this.fromHtmlStringToPdf.bind(this);
 
     // Bind alias methods
     this.file = this.fromFile;
@@ -63,6 +65,45 @@ class File extends Model {
 
     // Remove File
     fs.unlinkSync(`${global.appRoot}/data/cache/tmp/${this.get('hash')}`);
+
+    // Return this
+    return this;
+  }
+
+  /**
+   * Upload with buffer
+   *
+   * @param   {Buffer} buffer
+   * @param   {string} name
+   *
+   * @returns {File}
+   *
+   * @async
+   */
+  async fromHtmlStringToPdf(html, name) {
+    // Set extension and hash
+    this.set('ext', this.get('ext') || path.extname(name).replace('.', ''));
+    this.set('hash', this.get('hash') || uuid());
+
+    // Ensure tmp dir
+    fs.ensureDirSync(`${global.appRoot}/data/cache/tmp`);
+    const createPDF = (html, options) => new Promise(((resolve, reject) => {
+      pdf.create(html, options).toFile(`${global.appRoot}/data/cache/tmp/${this.get('hash')}.pdf`, (err, buffer) => {
+          if (err !== null) {
+            reject(err);
+          } else {
+            resolve(buffer);
+          }
+      });
+    }));
+
+    await createPDF(html, { format: 'A4' });
+
+    // Return this for chainable
+    await this.fromFile(`${global.appRoot}/data/cache/tmp/${this.get('hash')}.pdf`, name);
+
+    // Remove File
+    fs.unlinkSync(`${global.appRoot}/data/cache/tmp/${this.get('hash')}.pdf`);
 
     // Return this
     return this;
