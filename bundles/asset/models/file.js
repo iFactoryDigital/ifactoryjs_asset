@@ -97,7 +97,12 @@ class File extends Model {
       });
     }));
 
-    await createPDF(html, { format: 'A4' });
+    await createPDF(html, {
+      format: 'A4',
+      border: {
+        "bottom": "10px",
+      },
+    });
 
     // Return this for chainable
     await this.fromFile(`${global.appRoot}/data/cache/tmp/${this.get('hash')}.pdf`, name);
