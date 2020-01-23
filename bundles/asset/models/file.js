@@ -98,7 +98,7 @@ class File extends Model {
     }));
 
     await createPDF(html, {
-      format: 'A4',
+      format: 'Letter',
       border: {
         "bottom": "10px",
       },
